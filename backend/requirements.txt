@@ -1,0 +1,14 @@
+# FastAPI framework and server
+fastapi
+uvicorn[standard]
+
+# Database ORM and driver
+sqlalchemy
+mysql-connector-python
+
+# Environment variable management
+python-dotenv
+
+# Libraries for authentication and security\
+passlib[bcrypt]
+python-jose[cryptography]
