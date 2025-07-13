@@ -1,0 +1,71 @@
+// File: frontend/lib/api.ts
+// Mục đích: Chứa tất cả các hàm gọi API đến backend FastAPI.
+
+import axios from 'axios';
+import { Book, Author, Genre, Reader, BorrowSlip, ReturnSlip, User, Token, UnreturnedBorrow, BookQuantity } from '../types';
+
+// Tạo một instance của axios với cấu hình mặc định
+const apiClient = axios.create({
+  baseURL: 'http://127.0.0.1:8000/api', // URL của backend FastAPI
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+// --- API cho Tác Giả ---
+export const getAuthors = () => apiClient.get<Author[]>('/authors/');
+export const createAuthor = (data: { TenTacGia: string }) => apiClient.post<Author>('/authors/', data);
+export const updateAuthor = (id: number, data: { TenTacGia: string }) => apiClient.put<Author>(`/authors/${id}`, data);
+export const deleteAuthor = (id: number) => apiClient.delete(`/authors/${id}`);
+
+
+// --- API cho Thể Loại ---
+export const getGenres = () => apiClient.get<Genre[]>('/genres/');
+export const createGenre = (data: { TenTheLoai: string }) => apiClient.post<Genre>('/genres/', data);
+export const updateGenre = (id: number, data: { TenTheLoai: string }) => apiClient.put<Genre>(`/genres/${id}`, data);
+export const deleteGenre = (id: number) => apiClient.delete(`/genres/${id}`);
+
+// --- API cho Sách ---
+export const getBooks = () => apiClient.get<Book[]>('/books/');
+export const createBook = (data: Omit<Book, 'TacGia' | 'TheLoai'>) => apiClient.post<Book>('/books/', data);
+export const updateBook = (id: string, data: Partial<Omit<Book, 'MaSach' | 'TacGia' | 'TheLoai'>>) => apiClient.put<Book>(`/books/${id}`, data);
+export const deleteBook = (id: string) => apiClient.delete(`/books/${id}`);
+
+// --- API cho Độc Giả ---
+export const getReaders = () => apiClient.get<Reader[]>('/readers/');
+export const createReader = (data: Omit<Reader, 'MaDocGia'>) => apiClient.post<Reader>('/readers/', data);
+export const updateReader = (id: number, data: Partial<Omit<Reader, 'MaDocGia'>>) => apiClient.put<Reader>(`/readers/${id}`, data);
+export const deleteReader = (id: number) => apiClient.delete(`/readers/${id}`);
+
+export const getBorrowSlips = () => apiClient.get<BorrowSlip[]>('/borrows/');
+
+export const createBorrowSlip = (data: {
+    MaDocGia: number;
+    NgayMuon: string;
+    NgayTra: string;
+    ChiTiet: { MaSach: string; SoLuong: number }[];
+}) => apiClient.post<BorrowSlip>('/borrows/', data);
+
+export const createReturnSlip = (data: {
+    MaChiTietPM: number;
+    NgayTraSach: string;
+}) => apiClient.post<ReturnSlip>('/returns/', data);
+
+export const getReturnSlips = () => apiClient.get<ReturnSlip[]>('/returns/');
+export const getUnreturnedBorrows = () => apiClient.get<UnreturnedBorrow[]>('/utils/unreturned-borrows');
+export const checkBookQuantity = (bookId: string) => apiClient.get<BookQuantity>(`/utils/check-book-quantity/${bookId}`);
+
+export const registerUser = (data: Omit<User, 'id'> & { password: string }) => {
+  return apiClient.post<User>('/auth/register', data);
+};
+
+export const loginUser = (data: URLSearchParams) => {
+  // API đăng nhập của FastAPI với OAuth2PasswordRequestForm yêu cầu
+  // dữ liệu được gửi dưới dạng 'application/x-www-form-urlencoded'
+  return apiClient.post<Token>('/auth/login', data, {
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+  });
+};
+
