@@ -1,4 +1,3 @@
-// File: frontend/app/register/page.tsx
 'use client';
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -32,7 +31,6 @@ export default function RegisterPage() {
       toast.dismiss(loadingToast);
       toast.success('Đăng ký thành công! Vui lòng đăng nhập.');
 
-      // Chuyển hướng đến trang đăng nhập
       router.push('/login');
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

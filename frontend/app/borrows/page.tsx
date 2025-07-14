@@ -1,22 +1,16 @@
-// File: frontend/app/borrows/page.tsx
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-// SỬA LỖI: Quay lại sử dụng hook useReactToPrint
 import { useReactToPrint } from 'react-to-print';
 import { getBorrowSlips, createBorrowSlip, createReturnSlip, getBooks, getReturnSlips, getUnreturnedBorrows, checkBookQuantity } from '../../lib/api';
 import { BorrowSlip, Book, ReturnSlip, UnreturnedBorrow } from '../../types';
 import { toast } from 'react-hot-toast';
 import { useAppData } from '../../context/AppDataContext';
 
-// Helper function to format date to YYYY-MM-DD
 const formatDate = (date: Date | string) => new Date(date).toLocaleDateString('vi-VN');
 
-// =======================================================================
-// COMPONENT CHÍNH: BorrowsPage (Không thay đổi logic chính)
-// =======================================================================
 export default function BorrowsPage() {
   const [borrowSlips, setBorrowSlips] = useState<BorrowSlip[]>([]);
   const [returnSlips, setReturnSlips] = useState<ReturnSlip[]>([]);
@@ -146,9 +140,6 @@ export default function BorrowsPage() {
   );
 }
 
-// =======================================================================
-// COMPONENT PHỤ MỚI: BorrowSlipPrintView (Component cho bản in)
-// =======================================================================
 const BorrowSlipPrintView = React.forwardRef<HTMLDivElement, { slip: BorrowSlip }>(({ slip }, ref) => {
     return (
         <div ref={ref} className="p-10 text-black">
@@ -208,10 +199,6 @@ const BorrowSlipPrintView = React.forwardRef<HTMLDivElement, { slip: BorrowSlip 
 });
 BorrowSlipPrintView.displayName = 'BorrowSlipPrintView';
 
-
-// =======================================================================
-// COMPONENT PHỤ: BorrowTable (Đã sửa lỗi)
-// =======================================================================
 const BorrowTable = ({ borrowSlips, returnSlips, onReturn }: { borrowSlips: BorrowSlip[], returnSlips: ReturnSlip[], onReturn: (id: number) => void }) => {
     const [expandedRow, setExpandedRow] = useState<number | null>(null);
     const returnedDetailIds = new Set(returnSlips.map(rs => rs.MaChiTietPM));
@@ -223,7 +210,6 @@ const BorrowTable = ({ borrowSlips, returnSlips, onReturn }: { borrowSlips: Borr
         setExpandedRow(expandedRow === id ? null : id);
     };
 
-    // SỬA LỖI: Dùng hook useReactToPrint và thêm @ts-expect-error
     const handlePrint = useReactToPrint({
         // @ts-expect-error - skip error
         content: () => printComponentRef.current,
@@ -319,9 +305,6 @@ const BorrowTable = ({ borrowSlips, returnSlips, onReturn }: { borrowSlips: Borr
     );
 };
 
-// =======================================================================
-// COMPONENT PHỤ: UnreturnedTable (Không thay đổi)
-// =======================================================================
 const UnreturnedTable = ({ unreturnedSlips, isLoading }: { unreturnedSlips: UnreturnedBorrow[], isLoading: boolean }) => {
     if (isLoading) {
         return <p>Đang tải danh sách phiếu chưa trả...</p>;
@@ -360,10 +343,6 @@ const UnreturnedTable = ({ unreturnedSlips, isLoading }: { unreturnedSlips: Unre
     );
 };
 
-
-// =======================================================================
-// COMPONENT PHỤ: BorrowForm (Không thay đổi)
-// =======================================================================
 const BorrowForm = ({ readers, books, onSave, onClose }: { readers: any[], books: Book[], onSave: (data: any) => void, onClose: () => void }) => {
     const [maDocGia, setMaDocGia] = useState('');
     const [ngayTra, setNgayTra] = useState('');

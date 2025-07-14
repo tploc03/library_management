@@ -1,19 +1,14 @@
-// File: frontend/app/books/page.tsx
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-// 1. Import CSVLink
 import { CSVLink } from 'react-csv';
 import { getBooks, createBook, updateBook, deleteBook } from '../../lib/api';
 import { Book, Author, Genre } from '../../types';
 import { toast } from 'react-hot-toast';
 import { useAppData } from '../../context/AppDataContext';
 
-// =======================================================================
-// COMPONENT CHÍNH: BooksPage
-// =======================================================================
 export default function BooksPage() {
   const [books, setBooks] = useState<Book[]>([]);
   const [isLoadingBooks, setIsLoadingBooks] = useState(true);
@@ -89,7 +84,6 @@ export default function BooksPage() {
   
   const isLoading = isLoadingBooks || isAppDataLoading;
 
-  // 2. Chuẩn bị dữ liệu và tiêu đề cho file CSV
   const csvHeaders = [
     { label: "Mã Sách", key: "MaSach" },
     { label: "Tên Sách", key: "TenSach" },
@@ -100,7 +94,6 @@ export default function BooksPage() {
     { label: "Số Lượng Hiện Có", key: "SoLuongHienCo" },
   ];
 
-  // Chuyển đổi dữ liệu sách để phù hợp với CSV (làm phẳng dữ liệu)
   const csvData = books.map(book => ({
     MaSach: book.MaSach,
     TenSach: book.TenSach,
@@ -115,7 +108,6 @@ export default function BooksPage() {
     <div className="container mx-auto">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-gray-800">Quản lý Sách</h1>
-        {/* 3. Thêm nút "Xuất ra CSV" */}
         <div className="flex items-center space-x-4">
             <CSVLink
                 data={csvData}
@@ -154,9 +146,6 @@ export default function BooksPage() {
   );
 }
 
-// =======================================================================
-// COMPONENT PHỤ: BookTable (Không thay đổi)
-// =======================================================================
 const BookTable = ({ books, onEdit, onDelete }: { books: Book[], onEdit: (book: Book) => void, onDelete: (id: string) => void }) => {
   return (
     <div className="bg-white shadow-md rounded-lg overflow-x-auto">
@@ -195,9 +184,6 @@ const BookTable = ({ books, onEdit, onDelete }: { books: Book[], onEdit: (book: 
   );
 };
 
-// =======================================================================
-// COMPONENT PHỤ: BookForm (Không thay đổi)
-// =======================================================================
 const BookForm = ({ book, authors, genres, onSave, onClose }: { book: Book | null, authors: Author[], genres: Genre[], onSave: (data: any) => void, onClose: () => void }) => {
   const [formData, setFormData] = useState({
     MaSach: book?.MaSach || '',

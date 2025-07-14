@@ -1,6 +1,3 @@
-// File: frontend/types/index.ts
-// Mục đích: Định nghĩa cấu trúc dữ liệu cho toàn bộ ứng dụng.
-
 export interface Author {
   MaTacGia: number;
   TenTacGia: string;
@@ -30,30 +27,26 @@ export interface Reader {
   SoDienThoai: string | null;
 }
 
-// Dùng để hiển thị sách trong chi tiết phiếu mượn
 export interface BookForDisplay {
   MaSach: string;
   TenSach: string;
 }
 
-// Cấu trúc của một chi tiết phiếu mượn
 export interface BorrowDetail {
   MaChiTietPM: number;
   SoLuong: number;
   Sach: BookForDisplay;
 }
 
-// Cấu trúc của một phiếu mượn hoàn chỉnh
 export interface BorrowSlip {
   MaPhieuMuon: number;
   NgayMuon: string;
-  NgayTra: string; // Ngày hẹn trả
+  NgayTra: string;
   TrangThai: 'Đang mượn' | 'Đã trả';
   DocGia: Reader;
   ChiTietPhieuMuons: BorrowDetail[];
 }
 
-// Cấu trúc của một phiếu trả
 export interface ReturnSlip {
     MaPhieuTra: number;
     MaChiTietPM: number;

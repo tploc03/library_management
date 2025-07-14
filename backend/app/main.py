@@ -24,9 +24,6 @@ app.add_middleware(
 
 @app.get("/")
 def read_root():
-    """
-    Endpoint gốc để chào mừng.
-    """
     return {"message": "Welcome to the Library Management API!"}
 
 app.include_router(api_router, prefix="/api")

@@ -1,6 +1,3 @@
-# File: backend/app/api/endpoints/auth.py
-# Mục đích: Định nghĩa các API cho việc Đăng ký và Đăng nhập.
-
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
@@ -16,9 +13,6 @@ router = APIRouter()
 
 @router.post("/register", response_model=schemas.User, status_code=201, summary="Đăng ký người dùng mới")
 def register_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
-    """
-    Tạo một tài khoản người dùng mới.
-    """
     db_user = crud_user.get_user_by_username(db, username=user.username)
     if db_user:
         raise HTTPException(
@@ -29,9 +23,6 @@ def register_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
 
 @router.post("/login", response_model=schemas.Token, summary="Đăng nhập")
 def login_for_access_token(db: Session = Depends(get_db), form_data: OAuth2PasswordRequestForm = Depends()):
-    """
-    Xác thực người dùng và trả về một access token.
-    """
     user = crud_user.get_user_by_username(db, username=form_data.username)
     if not user or not security.verify_password(form_data.password, user.hashed_password):
         raise HTTPException(

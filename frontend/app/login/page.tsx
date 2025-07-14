@@ -1,11 +1,11 @@
-// File: frontend/app/login/page.tsx
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { toast } from 'react-hot-toast';
-import Cookies from 'js-cookie'; // Import thư viện js-cookie
+import Cookies from 'js-cookie';
 import { loginUser } from '../../lib/api';
 
 export default function LoginPage() {
@@ -20,23 +20,19 @@ export default function LoginPage() {
     const loadingToast = toast.loading('Đang đăng nhập...');
 
     try {
-      // API của chúng ta cần dữ liệu dạng URLSearchParams
       const formData = new URLSearchParams();
       formData.append('username', username);
       formData.append('password', password);
 
       const response = await loginUser(formData);
 
-      // Lưu token vào cookie, hết hạn sau 1 ngày
       Cookies.set('accessToken', response.data.access_token, { expires: 1 });
       
       toast.dismiss(loadingToast);
       toast.success('Đăng nhập thành công!');
 
-      // Chuyển hướng đến trang quản lý sách
       router.push('/books');
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       toast.dismiss(loadingToast);
       const errorMessage = error.response?.data?.detail || 'Sai tài khoản hoặc mật khẩu.';
@@ -48,7 +44,6 @@ export default function LoginPage() {
   };
 
   return (
-    // Component này sẽ không có sidebar vì đã được cấu hình trong layout.tsx
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-xl">
         <h1 className="text-3xl font-bold text-center text-gray-800">Đăng Nhập Hệ Thống</h1>

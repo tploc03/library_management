@@ -1,19 +1,14 @@
-// File: frontend/app/authors/page.tsx
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import React, { useState } from 'react';
-// 1. Import CSVLink từ thư viện vừa cài đặt
 import { CSVLink } from 'react-csv';
 import { createAuthor, updateAuthor, deleteAuthor } from '../../lib/api';
 import { Author } from '../../types';
 import { toast } from 'react-hot-toast';
 import { useAppData } from '../../context/AppDataContext';
 
-// =======================================================================
-// COMPONENT CHÍNH: AuthorsPage
-// =======================================================================
 export default function AuthorsPage() {
   const { state, refetchData } = useAppData();
   const { authors, isLoading } = state;
@@ -66,19 +61,17 @@ export default function AuthorsPage() {
     }
   };
 
-  // 2. Chuẩn bị dữ liệu và tiêu đề cho file CSV
   const csvHeaders = [
     { label: "Mã Tác Giả", key: "MaTacGia" },
     { label: "Tên Tác Giả", key: "TenTacGia" }
   ];
 
-  const csvData = authors; // Dữ liệu tác giả từ context đã có định dạng phù hợp
+  const csvData = authors;
 
   return (
     <div className="container mx-auto">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-gray-800">Quản lý Tác Giả</h1>
-        {/* 3. Thêm nút "Xuất ra CSV" */}
         <div className="flex items-center space-x-4">
             <CSVLink
                 data={csvData}
@@ -115,9 +108,6 @@ export default function AuthorsPage() {
   );
 }
 
-// =======================================================================
-// COMPONENT PHỤ: AuthorTable (Không thay đổi)
-// =======================================================================
 const AuthorTable = ({ authors, onEdit, onDelete }: { authors: Author[], onEdit: (author: Author) => void, onDelete: (id: number) => void }) => (
   <div className="bg-white shadow-md rounded-lg overflow-hidden">
     <table className="min-w-full divide-y divide-gray-200">
@@ -148,9 +138,6 @@ const AuthorTable = ({ authors, onEdit, onDelete }: { authors: Author[], onEdit:
   </div>
 );
 
-// =======================================================================
-// COMPONENT PHỤ: AuthorForm (Không thay đổi)
-// =======================================================================
 const AuthorForm = ({ author, onSave, onClose }: { author: Author | null, onSave: (data: { TenTacGia: string }) => void, onClose: () => void }) => {
   const [tenTacGia, setTenTacGia] = useState(author?.TenTacGia || '');
 

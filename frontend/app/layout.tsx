@@ -1,4 +1,3 @@
-// File: frontend/app/layout.tsx
 'use client'; 
 
 import { Inter } from "next/font/google";
@@ -7,7 +6,6 @@ import toast, { Toaster } from 'react-hot-toast';
 import { usePathname, useRouter } from "next/navigation";
 import Cookies from 'js-cookie';
 import "./globals.css";
-// Import AppDataProvider vừa tạo
 import { AppDataProvider } from "../context/AppDataContext";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -38,8 +36,6 @@ export default function RootLayout({
   return (
     <html lang="vi">
       <body className={inter.className}>
-        {/* Bọc toàn bộ ứng dụng bằng AppDataProvider */}
-        {/* Mọi component con bên trong đều có thể truy cập dữ liệu chung */}
         <AppDataProvider>
           <Toaster position="top-center" reverseOrder={false} />
           <div className="flex min-h-screen bg-gray-100">
@@ -72,7 +68,6 @@ export default function RootLayout({
                 </div>
               </aside>
             )}
-            {/* Thêm padding cho nội dung chính để giao diện đẹp hơn */}
             <main className="flex-1 p-6">
               {children}
             </main>

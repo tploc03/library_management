@@ -1,19 +1,14 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// File: frontend/app/readers/page.tsx
 'use client';
 
 import React, { useState } from 'react';
-// 1. Import CSVLink
 import { CSVLink } from 'react-csv';
 import { createReader, updateReader, deleteReader } from '../../lib/api';
 import { Reader } from '../../types';
 import { toast } from 'react-hot-toast';
 import { useAppData } from '../../context/AppDataContext';
 
-// =======================================================================
-// COMPONENT CHÍNH: ReadersPage
-// =======================================================================
 export default function ReadersPage() {
   const { state, refetchData } = useAppData();
   const { readers, isLoading } = state;
@@ -66,7 +61,6 @@ export default function ReadersPage() {
     }
   };
 
-  // 2. Chuẩn bị dữ liệu và tiêu đề cho file CSV
   const csvHeaders = [
     { label: "Mã Độc Giả", key: "MaDocGia" },
     { label: "Tên Độc Giả", key: "TenDocGia" },
@@ -74,7 +68,6 @@ export default function ReadersPage() {
     { label: "Số Điện Thoại", key: "SoDienThoai" }
   ];
 
-  // Định dạng lại ngày sinh cho dễ đọc trong file CSV
   const csvData = readers.map(reader => ({
     ...reader,
     NgaySinh: reader.NgaySinh ? new Date(reader.NgaySinh).toLocaleDateString('vi-VN') : 'N/A'
@@ -84,7 +77,6 @@ export default function ReadersPage() {
     <div className="container mx-auto">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-gray-800">Quản lý Độc Giả</h1>
-        {/* 3. Thêm nút "Xuất ra CSV" */}
         <div className="flex items-center space-x-4">
             <CSVLink
                 data={csvData}
@@ -121,9 +113,6 @@ export default function ReadersPage() {
   );
 }
 
-// =======================================================================
-// COMPONENT PHỤ: ReaderTable (Không thay đổi)
-// =======================================================================
 const ReaderTable = ({ readers, onEdit, onDelete }: { readers: Reader[], onEdit: (reader: Reader) => void, onDelete: (id: number) => void }) => (
   <div className="bg-white shadow-md rounded-lg overflow-hidden">
     <table className="min-w-full divide-y divide-gray-200">
@@ -158,9 +147,6 @@ const ReaderTable = ({ readers, onEdit, onDelete }: { readers: Reader[], onEdit:
   </div>
 );
 
-// =======================================================================
-// COMPONENT PHỤ: ReaderForm (Không thay đổi)
-// =======================================================================
 const ReaderForm = ({ reader, onSave, onClose }: { reader: Reader | null, onSave: (data: Omit<Reader, 'MaDocGia'>) => void, onClose: () => void }) => {
   const [formData, setFormData] = useState({
     TenDocGia: reader?.TenDocGia || '',

@@ -3,16 +3,12 @@
 'use client';
 
 import React, { useState } from 'react';
-// 1. Import CSVLink
 import { CSVLink } from 'react-csv';
 import { createGenre, updateGenre, deleteGenre } from '../../lib/api';
 import { Genre } from '../../types';
 import { toast } from 'react-hot-toast';
 import { useAppData } from '../../context/AppDataContext';
 
-// =======================================================================
-// COMPONENT CHÍNH: GenresPage
-// =======================================================================
 export default function GenresPage() {
   const { state, refetchData } = useAppData();
   const { genres, isLoading } = state;
@@ -65,7 +61,6 @@ export default function GenresPage() {
     }
   };
 
-  // 2. Chuẩn bị dữ liệu và tiêu đề cho file CSV
   const csvHeaders = [
     { label: "Mã Thể Loại", key: "MaTheLoai" },
     { label: "Tên Thể Loại", key: "TenTheLoai" }
@@ -77,7 +72,6 @@ export default function GenresPage() {
     <div className="container mx-auto">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-gray-800">Quản lý Thể Loại</h1>
-        {/* 3. Thêm nút "Xuất ra CSV" */}
         <div className="flex items-center space-x-4">
             <CSVLink
                 data={csvData}
@@ -114,9 +108,6 @@ export default function GenresPage() {
   );
 }
 
-// =======================================================================
-// COMPONENT PHỤ: GenreTable (Không thay đổi)
-// =======================================================================
 const GenreTable = ({ genres, onEdit, onDelete }: { genres: Genre[], onEdit: (genre: Genre) => void, onDelete: (id: number) => void }) => (
   <div className="bg-white shadow-md rounded-lg overflow-hidden">
     <table className="min-w-full divide-y divide-gray-200">
@@ -147,9 +138,6 @@ const GenreTable = ({ genres, onEdit, onDelete }: { genres: Genre[], onEdit: (ge
   </div>
 );
 
-// =======================================================================
-// COMPONENT PHỤ: GenreForm (Không thay đổi)
-// =======================================================================
 const GenreForm = ({ genre, onSave, onClose }: { genre: Genre | null, onSave: (data: { TenTheLoai: string }) => void, onClose: () => void }) => {
   const [tenTheLoai, setTenTheLoai] = useState(genre?.TenTheLoai || '');
 
