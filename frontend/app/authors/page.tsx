@@ -8,7 +8,7 @@ import { createAuthor, updateAuthor, deleteAuthor } from '../../lib/api';
 import { Author } from '../../types';
 import { toast } from 'react-hot-toast';
 import { useAppData } from '../../context/AppDataContext';
-import ExportCSVButton from '@/components/ExportCSVButton';
+import ExportCSVButton from '@/components/DynamicExportCSVButton';
 
 export default function AuthorsPage() {
   const { state, refetchData } = useAppData();

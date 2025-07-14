@@ -46,3 +46,22 @@ def get_borrow_slips(db: Session, skip: int = 0, limit: int = 100):
         joinedload(models.PhieuMuon.DocGia),
         joinedload(models.PhieuMuon.ChiTietPhieuMuons).joinedload(models.ChiTietPhieuMuon.Sach)
     ).order_by(models.PhieuMuon.MaPhieuMuon.desc()).offset(skip).limit(limit).all()
+
+def get_unreturned_slips(db: Session):
+    """
+    Lấy danh sách các phiếu mượn đang ở trạng thái 'Đang mượn' bằng ORM.
+    """
+    results = db.query(
+        models.PhieuMuon.MaPhieuMuon,
+        models.PhieuMuon.NgayMuon,
+        models.PhieuMuon.NgayTra,
+        models.DocGia.TenDocGia,
+        models.DocGia.SoDienThoai
+    ).join(models.DocGia, models.PhieuMuon.MaDocGia == models.DocGia.MaDocGia)\
+     .filter(models.PhieuMuon.TrangThai == 'Đang mượn')\
+     .order_by(models.PhieuMuon.MaPhieuMuon.desc())\
+     .all()
+    
+    return [
+        schemas.PhieuMuonChuaTra.model_validate(row, from_attributes=True) for row in results
+    ]

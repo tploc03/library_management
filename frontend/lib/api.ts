@@ -44,7 +44,10 @@ export const createReturnSlip = (data: {
 }) => apiClient.post<ReturnSlip>('/returns/', data);
 
 export const getReturnSlips = () => apiClient.get<ReturnSlip[]>('/returns/');
-export const getUnreturnedBorrows = () => apiClient.get<UnreturnedBorrow[]>('/utils/unreturned-borrows');
+
+// Đổi đường dẫn API từ /utils/unreturned-borrows sang /borrows/unreturned
+export const getUnreturnedBorrows = () => apiClient.get<UnreturnedBorrow[]>('/borrows/unreturned');
+
 export const checkBookQuantity = (bookId: string) => apiClient.get<BookQuantity>(`/utils/check-book-quantity/${bookId}`);
 
 export const registerUser = (data: Omit<User, 'id'> & { password: string }) => {
@@ -58,4 +61,3 @@ export const loginUser = (data: URLSearchParams) => {
     },
   });
 };
-

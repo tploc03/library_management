@@ -3,12 +3,11 @@
 'use client';
 
 import React, { useState } from 'react';
-import { CSVLink } from 'react-csv';
 import { createGenre, updateGenre, deleteGenre } from '../../lib/api';
 import { Genre } from '../../types';
 import { toast } from 'react-hot-toast';
 import { useAppData } from '../../context/AppDataContext';
-import ExportCSVButton from '@/components/ExportCSVButton';
+import ExportCSVButton from '@/components/DynamicExportCSVButton';
 
 export default function GenresPage() {
   const { state, refetchData } = useAppData();

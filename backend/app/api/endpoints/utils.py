@@ -1,5 +1,5 @@
 from typing import List
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app.schemas import schemas
@@ -15,6 +15,15 @@ def check_book_quantity(book_id: str, db: Session = Depends(get_db)):
 
 @router.get("/unreturned-borrows", response_model=List[schemas.PhieuMuonChuaTra], summary="Gọi Stored Procedure lấy phiếu mượn chưa trả")
 def get_unreturned_borrows(db: Session = Depends(get_db)):
-    unreturned_list = crud_utils.call_unreturned_borrows_procedure(db)
-    return unreturned_list
+    unreturned_list_raw = crud_utils.call_unreturned_borrows_procedure(db)
 
+    unreturned_list = [
+        {
+            "MaPhieuMuon": row.MaPhieuMuon,
+            "NgayMuon": row.NgayMuon,
+            "NgayTra": row.NgayTra,
+            "TenDocGia": row.TenDocGia,
+            "SoDienThoai": row.SoDienThoai
+        } for row in unreturned_list_raw
+    ]
+    return unreturned_list

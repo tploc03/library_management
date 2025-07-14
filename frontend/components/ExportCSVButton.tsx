@@ -16,7 +16,6 @@ export default function ExportCSVButton({ data, headers, filename }: ExportCSVBu
       headers={headers}
       filename={filename}
       className="bg-teal-600 text-white px-5 py-2 rounded-lg shadow hover:bg-teal-700 transition-colors"
-      target="_blank"
     >
       Xuất ra CSV
     </CSVLink>

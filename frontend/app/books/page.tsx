@@ -1,10 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
-import ExportCSVButton from '../../components/ExportCSVButton';
-
+import ExportCSVButton from '@/components/DynamicExportCSVButton';
 import React, { useState, useEffect, useCallback } from 'react';
-import { CSVLink } from 'react-csv';
 import { getBooks, createBook, updateBook, deleteBook } from '../../lib/api';
 import { Book, Author, Genre } from '../../types';
 import { toast } from 'react-hot-toast';
@@ -110,12 +108,11 @@ export default function BooksPage() {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-gray-800">Quản lý Sách</h1>
         <div className="flex items-center space-x-4">
-          <ExportCSVButton
-            data={csvData}
-            headers={csvHeaders}
-            filename="danh_sach_sach.csv"
-          />
-
+            <ExportCSVButton
+              data={csvData}
+              headers={csvHeaders}
+              filename="danh_sach_sach.csv"
+            />
             <button
                 onClick={() => handleOpenModal()}
                 className="bg-blue-600 text-white px-5 py-2 rounded-lg shadow hover:bg-blue-700 transition-colors"

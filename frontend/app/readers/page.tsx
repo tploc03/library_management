@@ -8,7 +8,7 @@ import { createReader, updateReader, deleteReader } from '../../lib/api';
 import { Reader } from '../../types';
 import { toast } from 'react-hot-toast';
 import { useAppData } from '../../context/AppDataContext';
-import ExportCSVButton from '@/components/ExportCSVButton';
+import ExportCSVButton from '@/components/DynamicExportCSVButton';
 
 export default function ReadersPage() {
   const { state, refetchData } = useAppData();

@@ -1,13 +1,11 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { useReactToPrint } from 'react-to-print';
-import ExportCSVButton from '../../components/ExportCSVButton';
+import React, { useState, useEffect, useCallback } from 'react';
+import ExportCSVButton from '@/components/DynamicExportCSVButton';
 import { getBorrowSlips, createBorrowSlip, createReturnSlip, getBooks, getReturnSlips, getUnreturnedBorrows, checkBookQuantity } from '../../lib/api';
-import { BorrowSlip, Book, ReturnSlip, UnreturnedBorrow } from '../../types';
+import { BorrowSlip, Book, ReturnSlip, UnreturnedBorrow, Reader } from '../../types';
 import { toast } from 'react-hot-toast';
 import { useAppData } from '../../context/AppDataContext';
 
@@ -90,6 +88,11 @@ export default function BorrowsPage() {
           });
           toast.success('Trả sách thành công!');
           await fetchPageData();
+          // Also refetch unreturned slips if that view is active
+          if (showOnlyUnreturned) {
+              const res = await getUnreturnedBorrows();
+              setUnreturnedSlips(res.data);
+          }
       } catch (error: any) {
           const errorMessage = error.response?.data?.detail || 'Đã xảy ra lỗi.';
           toast.error(`Trả sách thất bại: ${errorMessage}`);
@@ -100,16 +103,52 @@ export default function BorrowsPage() {
 
   const isLoading = isLoadingData || isAppDataLoading;
 
+  const returnedDetailIds = new Set(returnSlips.map(rs => rs.MaChiTietPM));
+  const csvHeaders = [
+    { label: "Mã Phiếu Mượn", key: "MaPhieuMuon" },
+    { label: "Tên Độc Giả", key: "TenDocGia" },
+    { label: "Ngày Mượn", key: "NgayMuon" },
+    { label: "Ngày Hẹn Trả", key: "NgayHenTra" },
+    { label: "Trạng Thái Phiếu", key: "TrangThaiPhieu" },
+    { label: "Mã Sách", key: "MaSach" },
+    { label: "Tên Sách", key: "TenSach" },
+    { label: "Số Lượng", key: "SoLuong" },
+    { label: "Trạng Thái Sách", key: "TrangThaiSach" },
+  ];
+
+  const csvData = borrowSlips.flatMap(slip =>
+    slip.ChiTietPhieuMuons.map(detail => {
+      const isReturned = returnedDetailIds.has(detail.MaChiTietPM);
+      return {
+        MaPhieuMuon: slip.MaPhieuMuon,
+        TenDocGia: slip.DocGia.TenDocGia,
+        NgayMuon: formatDate(slip.NgayMuon),
+        NgayHenTra: formatDate(slip.NgayTra),
+        TrangThaiPhieu: slip.TrangThai,
+        MaSach: detail.Sach.MaSach,
+        TenSach: detail.Sach.TenSach,
+        SoLuong: detail.SoLuong,
+        TrangThaiSach: isReturned ? 'Đã trả' : 'Chưa trả',
+      };
+    })
+  );
+
+
   return (
     <div className="container mx-auto">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-gray-800">Quản lý Mượn/Trả</h1>
         <div className="flex items-center space-x-4">
+            <ExportCSVButton
+                data={csvData}
+                headers={csvHeaders}
+                filename="danh_sach_sach.csv"
+            />
             <button
                 onClick={handleToggleUnreturnedFilter}
                 className="bg-yellow-500 text-white px-5 py-2 rounded-lg shadow hover:bg-yellow-600 transition-colors"
             >
-                {showOnlyUnreturned ? 'Hiển thị Tất cả Phiếu' : 'DS Phiếu Chưa Trả'}
+                {showOnlyUnreturned ? 'Hiển thị Tất cả' : 'DS Chưa Trả'}
             </button>
             <button
                 onClick={() => setIsModalOpen(true)}
@@ -142,172 +181,77 @@ export default function BorrowsPage() {
   );
 }
 
-const BorrowSlipPrintView = React.forwardRef<HTMLDivElement, { slip: BorrowSlip }>(({ slip }, ref) => {
-    return (
-        <div ref={ref} className="p-10 text-black">
-            <header className="text-center mb-10">
-                <h1 className="text-3xl font-bold">PHIẾU MƯỢN SÁCH</h1>
-                <p>Thư viện ABC</p>
-                <p>Ngày in: {formatDate(new Date())}</p>
-            </header>
-            <main>
-                <div className="grid grid-cols-2 gap-x-8 mb-6">
-                    <div>
-                        <p><span className="font-semibold">Mã phiếu mượn:</span> {slip.MaPhieuMuon}</p>
-                        <p><span className="font-semibold">Tên độc giả:</span> {slip.DocGia.TenDocGia}</p>
-                        <p><span className="font-semibold">Mã độc giả:</span> {slip.DocGia.MaDocGia}</p>
-                    </div>
-                    <div>
-                        <p><span className="font-semibold">Ngày mượn:</span> {formatDate(slip.NgayMuon)}</p>
-                        <p><span className="font-semibold">Ngày hẹn trả:</span> {formatDate(slip.NgayTra)}</p>
-                    </div>
-                </div>
-
-                <h2 className="text-xl font-semibold mb-4 border-t pt-4">Chi tiết sách mượn:</h2>
-                <table className="min-w-full border border-gray-400">
-                    <thead className="bg-gray-200">
-                        <tr>
-                            <th className="p-2 border border-gray-400 text-left">STT</th>
-                            <th className="p-2 border border-gray-400 text-left">Mã Sách</th>
-                            <th className="p-2 border border-gray-400 text-left">Tên Sách</th>
-                            <th className="p-2 border border-gray-400 text-center">Số Lượng</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {slip.ChiTietPhieuMuons.map((detail, index) => (
-                            <tr key={detail.MaChiTietPM}>
-                                <td className="p-2 border border-gray-400">{index + 1}</td>
-                                <td className="p-2 border border-gray-400">{detail.Sach.MaSach}</td>
-                                <td className="p-2 border border-gray-400">{detail.Sach.TenSach}</td>
-                                <td className="p-2 border border-gray-400 text-center">{detail.SoLuong}</td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-
-                <footer className="mt-20 grid grid-cols-2 gap-x-8 text-center">
-                    <div>
-                        <p className="font-semibold">Người mượn</p>
-                        <p className="italic">(Ký và ghi rõ họ tên)</p>
-                    </div>
-                    <div>
-                        <p className="font-semibold">Thủ thư</p>
-                         <p className="italic">(Ký và ghi rõ họ tên)</p>
-                    </div>
-                </footer>
-            </main>
-        </div>
-    );
-});
-BorrowSlipPrintView.displayName = 'BorrowSlipPrintView';
-
 const BorrowTable = ({ borrowSlips, returnSlips, onReturn }: { borrowSlips: BorrowSlip[], returnSlips: ReturnSlip[], onReturn: (id: number) => void }) => {
     const [expandedRow, setExpandedRow] = useState<number | null>(null);
     const returnedDetailIds = new Set(returnSlips.map(rs => rs.MaChiTietPM));
     
-    const [slipToPrint, setSlipToPrint] = useState<BorrowSlip | null>(null);
-    const printComponentRef = useRef<HTMLDivElement>(null);
-  
     const toggleRow = (id: number) => {
         setExpandedRow(expandedRow === id ? null : id);
     };
-
-    const handlePrint = useReactToPrint({
-        // @ts-expect-error - skip error
-        content: () => printComponentRef.current,
-        documentTitle: `phieu-muon-${slipToPrint?.MaPhieuMuon || ''}`,
-        onAfterPrint: () => setSlipToPrint(null),
-    });
-
-    const triggerPrint = (slip: BorrowSlip) => {
-        setSlipToPrint(slip);
-        };
-
-        useEffect(() => {
-        if (slipToPrint && printComponentRef.current) {
-            // Gọi handlePrint khi DOM đã sẵn sàng
-            handlePrint();
-        }
-        }, [slipToPrint]);
-
   
     return (
-        <div>
-            <div className="hidden">
-                {slipToPrint && <BorrowSlipPrintView ref={printComponentRef} slip={slipToPrint} />}
-            </div>
-
-            <div className="bg-white shadow-md rounded-lg overflow-hidden">
-                <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                    <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mã PM</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Độc Giả</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ngày Mượn</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ngày Hẹn Trả</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trạng Thái</th>
-                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Chi tiết</th>
-                    </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                    {borrowSlips.length > 0 ? borrowSlips.map((slip) => (
-                        <React.Fragment key={slip.MaPhieuMuon}>
-                            <tr className="hover:bg-gray-50 cursor-pointer" onClick={() => toggleRow(slip.MaPhieuMuon)}>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{slip.MaPhieuMuon}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{slip.DocGia.TenDocGia}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{formatDate(slip.NgayMuon)}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{formatDate(slip.NgayTra)}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm">
-                                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${slip.TrangThai === 'Đã trả' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
-                                        {slip.TrangThai}
-                                    </span>
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-right">
-                                    {expandedRow === slip.MaPhieuMuon ? 'Đóng' : 'Xem'}
+        <div className="bg-white shadow-md rounded-lg overflow-hidden">
+            <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mã PM</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Độc Giả</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ngày Mượn</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ngày Hẹn Trả</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trạng Thái</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Chi tiết</th>
+                </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                {borrowSlips.length > 0 ? borrowSlips.map((slip) => (
+                    <React.Fragment key={slip.MaPhieuMuon}>
+                        <tr className="hover:bg-gray-50 cursor-pointer" onClick={() => toggleRow(slip.MaPhieuMuon)}>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{slip.MaPhieuMuon}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{slip.DocGia.TenDocGia}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{formatDate(slip.NgayMuon)}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{formatDate(slip.NgayTra)}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm">
+                                <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${slip.TrangThai === 'Đã trả' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                                    {slip.TrangThai}
+                                </span>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-right">
+                                {expandedRow === slip.MaPhieuMuon ? 'Đóng' : 'Xem'}
+                            </td>
+                        </tr>
+                        {expandedRow === slip.MaPhieuMuon && (
+                            <tr>
+                                <td colSpan={6} className="p-4 bg-gray-50">
+                                    <div>
+                                        <h4 className="font-bold mb-2">Chi tiết phiếu mượn:</h4>
+                                        <ul className="list-disc pl-5 space-y-2">
+                                            {slip.ChiTietPhieuMuons.map(detail => {
+                                                const isReturned = returnedDetailIds.has(detail.MaChiTietPM);
+                                                return (
+                                                    <li key={detail.MaChiTietPM} className="flex justify-between items-center">
+                                                        <span>{detail.Sach.TenSach} (SL: {detail.SoLuong})</span>
+                                                        {!isReturned && (
+                                                            <button 
+                                                                onClick={(e) => { e.stopPropagation(); onReturn(detail.MaChiTietPM); }}
+                                                                className="bg-blue-500 text-white text-xs px-3 py-1 rounded hover:bg-blue-600 ml-4"
+                                                            >
+                                                                Trả Sách
+                                                            </button>
+                                                        )}
+                                                    </li>
+                                                )
+                                            })}
+                                        </ul>
+                                    </div>
                                 </td>
                             </tr>
-                            {expandedRow === slip.MaPhieuMuon && (
-                                <tr>
-                                    <td colSpan={6} className="p-4 bg-gray-50">
-                                        <div className="flex justify-between items-start">
-                                            <div>
-                                                <h4 className="font-bold mb-2">Chi tiết phiếu mượn:</h4>
-                                                <ul className="list-disc pl-5 space-y-2">
-                                                    {slip.ChiTietPhieuMuons.map(detail => {
-                                                        const isReturned = returnedDetailIds.has(detail.MaChiTietPM);
-                                                        return (
-                                                            <li key={detail.MaChiTietPM} className="flex justify-between items-center">
-                                                                <span>{detail.Sach.TenSach} (SL: {detail.SoLuong})</span>
-                                                                {!isReturned && (
-                                                                    <button 
-                                                                        onClick={(e) => { e.stopPropagation(); onReturn(detail.MaChiTietPM); }}
-                                                                        className="bg-blue-500 text-white text-xs px-3 py-1 rounded hover:bg-blue-600 ml-4"
-                                                                    >
-                                                                        Trả Sách
-                                                                    </button>
-                                                                )}
-                                                            </li>
-                                                        )
-                                                    })}
-                                                </ul>
-                                            </div>
-                                            <button
-                                                onClick={(e) => { e.stopPropagation(); triggerPrint(slip); }}
-                                                className="bg-gray-600 text-white px-4 py-2 rounded-lg shadow hover:bg-gray-700 transition-colors"
-                                            >
-                                                In Phiếu
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            )}
-                        </React.Fragment>
-                    )) : (
-                        <tr><td colSpan={6} className="text-center py-10 text-gray-500">Không có dữ liệu phiếu mượn.</td></tr>
-                    )}
-                    </tbody>
-                </table>
-            </div>
+                        )}
+                    </React.Fragment>
+                )) : (
+                    <tr><td colSpan={6} className="text-center py-10 text-gray-500">Không có dữ liệu phiếu mượn.</td></tr>
+                )}
+                </tbody>
+            </table>
         </div>
     );
 };
@@ -350,7 +294,7 @@ const UnreturnedTable = ({ unreturnedSlips, isLoading }: { unreturnedSlips: Unre
     );
 };
 
-const BorrowForm = ({ readers, books, onSave, onClose }: { readers: any[], books: Book[], onSave: (data: any) => void, onClose: () => void }) => {
+const BorrowForm = ({ readers, books, onSave, onClose }: { readers: Reader[], books: Book[], onSave: (data: any) => void, onClose: () => void }) => {
     const [maDocGia, setMaDocGia] = useState('');
     const [ngayTra, setNgayTra] = useState('');
     const [chiTiet, setChiTiet] = useState<{ MaSach: string; TenSach: string; SoLuong: number }[]>([]);
