@@ -76,7 +76,7 @@ export default function GenresPage() {
             <ExportCSVButton
               data={csvData}
               headers={csvHeaders}
-              filename="danh_sach_phieu_muon.csv"
+              filename="danh_sach_the_loai.csv"
             />
             <button
                 onClick={() => handleOpenModal()}

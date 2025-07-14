@@ -400,7 +400,7 @@ const BorrowForm = ({ readers, books, onSave, onClose }: { readers: Reader[], bo
                   <div className="flex items-center space-x-2 mt-1">
                       <select value={selectedBook} onChange={e => setSelectedBook(e.target.value)} className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500">
                           <option value="" disabled>Chọn sách để thêm</option>
-                          {books.map(b => <option key={b.MaSach} value={b.MaSach}>{b.TenSach} (Còn: {b.SoLuongHienCo})</option>)}
+                          {books.map(b => <option key={b.MaSach} value={b.MaSach}>{b.TenSach}</option>)}
                       </select>
                       <button
                         type="button"

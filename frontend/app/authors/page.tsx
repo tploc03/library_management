@@ -77,7 +77,7 @@ export default function AuthorsPage() {
             <ExportCSVButton
               data={csvData}
               headers={csvHeaders}
-              filename="danh_sach_phieu_muon.csv"
+              filename="danh_sach_tac_gia.csv"
             />
             <button
                 onClick={() => handleOpenModal()}
