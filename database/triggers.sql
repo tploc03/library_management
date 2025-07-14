@@ -1,14 +1,14 @@
 USE `thu_vien_db`;
 
 DELIMITER $$
-
+DROP TRIGGER IF EXISTS `TinhTienPhat`;
 CREATE TRIGGER `TinhTienPhat`
 BEFORE INSERT ON `PhieuTra`
 FOR EACH ROW
 BEGIN
     DECLARE v_NgayHenTra DATE;
     DECLARE v_SoNgayTre INT;
-    DECLARE v_TienPhatMotNgay DECIMAL(10, 2) DEFAULT 1000.00;
+    DECLARE v_TienPhatMotNgay DECIMAL(10, 2) DEFAULT 5000.00;
 
     SELECT pm.NgayTra INTO v_NgayHenTra
     FROM PhieuMuon pm

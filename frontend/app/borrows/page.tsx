@@ -183,7 +183,8 @@ export default function BorrowsPage() {
 
 const BorrowTable = ({ borrowSlips, returnSlips, onReturn }: { borrowSlips: BorrowSlip[], returnSlips: ReturnSlip[], onReturn: (id: number) => void }) => {
     const [expandedRow, setExpandedRow] = useState<number | null>(null);
-    const returnedDetailIds = new Set(returnSlips.map(rs => rs.MaChiTietPM));
+    
+    const returnSlipsMap = new Map(returnSlips.map(rs => [rs.MaChiTietPM, rs]));
     
     const toggleRow = (id: number) => {
         setExpandedRow(expandedRow === id ? null : id);
@@ -193,14 +194,14 @@ const BorrowTable = ({ borrowSlips, returnSlips, onReturn }: { borrowSlips: Borr
         <div className="bg-white shadow-md rounded-lg overflow-hidden">
             <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
-                <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mã PM</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Độc Giả</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ngày Mượn</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ngày Hẹn Trả</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trạng Thái</th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Chi tiết</th>
-                </tr>
+                    <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mã PM</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Độc Giả</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ngày Mượn</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ngày Hẹn Trả</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trạng Thái</th>
+                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Chi tiết</th>
+                    </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                 {borrowSlips.length > 0 ? borrowSlips.map((slip) => (
@@ -216,32 +217,58 @@ const BorrowTable = ({ borrowSlips, returnSlips, onReturn }: { borrowSlips: Borr
                                 </span>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-right">
-                                {expandedRow === slip.MaPhieuMuon ? 'Đóng' : 'Xem'}
+                                {expandedRow === slip.MaPhieuMuon ? '▼ Đóng' : '► Xem'}
                             </td>
                         </tr>
                         {expandedRow === slip.MaPhieuMuon && (
                             <tr>
-                                <td colSpan={6} className="p-4 bg-gray-50">
-                                    <div>
-                                        <h4 className="font-bold mb-2">Chi tiết phiếu mượn:</h4>
-                                        <ul className="list-disc pl-5 space-y-2">
-                                            {slip.ChiTietPhieuMuons.map(detail => {
-                                                const isReturned = returnedDetailIds.has(detail.MaChiTietPM);
-                                                return (
-                                                    <li key={detail.MaChiTietPM} className="flex justify-between items-center">
-                                                        <span>{detail.Sach.TenSach} (SL: {detail.SoLuong})</span>
-                                                        {!isReturned && (
-                                                            <button 
-                                                                onClick={(e) => { e.stopPropagation(); onReturn(detail.MaChiTietPM); }}
-                                                                className="bg-blue-500 text-white text-xs px-3 py-1 rounded hover:bg-blue-600 ml-4"
-                                                            >
-                                                                Trả Sách
-                                                            </button>
-                                                        )}
-                                                    </li>
-                                                )
-                                            })}
-                                        </ul>
+                                <td colSpan={6} className="p-4 bg-gray-100">
+                                    <h4 className="font-bold mb-2 text-gray-800">Chi Tiết Phiếu Mượn:</h4>
+                                    <div className="overflow-x-auto">
+                                        <table className="min-w-full bg-white rounded-md">
+                                            <thead className="bg-gray-200">
+                                                <tr>
+                                                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-600 uppercase">Tên Sách</th>
+                                                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-600 uppercase">Số Lượng</th>
+                                                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-600 uppercase">Trạng Thái</th>
+                                                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-600 uppercase">Ngày Trả</th>
+                                                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-600 uppercase">Tiền Phạt</th>
+                                                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-600 uppercase">Hành động</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {slip.ChiTietPhieuMuons.map(detail => {
+                                                    const returnInfo = returnSlipsMap.get(detail.MaChiTietPM);
+                                                    const isReturned = !!returnInfo;
+
+                                                    return (
+                                                        <tr key={detail.MaChiTietPM} className="border-b border-gray-200">
+                                                            <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-800">{detail.Sach.TenSach}</td>
+                                                            <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-800">{detail.SoLuong}</td>
+                                                            <td className="px-4 py-2 whitespace-nowrap text-sm">
+                                                                <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${isReturned ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                                                                    {isReturned ? 'Đã trả' : 'Chưa trả'}
+                                                                </span>
+                                                            </td>
+                                                            <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-800">{isReturned ? formatDate(returnInfo.NgayTraSach) : 'N/A'}</td>
+                                                            <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-800">
+                                                                {isReturned ? `${returnInfo.TienPhat.toLocaleString('vi-VN')} VNĐ` : 'N/A'}
+                                                            </td>
+                                                            <td className="px-4 py-2 whitespace-nowrap text-sm">
+                                                                {!isReturned && (
+                                                                    <button 
+                                                                        onClick={(e) => { e.stopPropagation(); onReturn(detail.MaChiTietPM); }}
+                                                                        className="bg-blue-500 text-white text-xs px-3 py-1 rounded hover:bg-blue-600"
+                                                                    >
+                                                                        Trả Sách
+                                                                    </button>
+                                                                )}
+                                                            </td>
+                                                        </tr>
+                                                    )
+                                                })}
+                                            </tbody>
+                                        </table>
                                     </div>
                                 </td>
                             </tr>
