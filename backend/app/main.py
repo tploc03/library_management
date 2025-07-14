@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.api import api_router
-
+# uvicorn app.main:app --reload
 app = FastAPI(
     title="Library Management API",
     description="API cho hệ thống quản lý thư viện.",

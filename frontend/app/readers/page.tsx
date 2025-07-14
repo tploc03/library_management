@@ -8,6 +8,7 @@ import { createReader, updateReader, deleteReader } from '../../lib/api';
 import { Reader } from '../../types';
 import { toast } from 'react-hot-toast';
 import { useAppData } from '../../context/AppDataContext';
+import ExportCSVButton from '@/components/ExportCSVButton';
 
 export default function ReadersPage() {
   const { state, refetchData } = useAppData();
@@ -78,15 +79,11 @@ export default function ReadersPage() {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-gray-800">Quản lý Độc Giả</h1>
         <div className="flex items-center space-x-4">
-            <CSVLink
-                data={csvData}
-                headers={csvHeaders}
-                filename={"danh_sach_doc_gia.csv"}
-                className="bg-teal-600 text-white px-5 py-2 rounded-lg shadow hover:bg-teal-700 transition-colors"
-                target="_blank"
-            >
-                Xuất ra CSV
-            </CSVLink>
+            <ExportCSVButton
+              data={csvData}
+              headers={csvHeaders}
+              filename="danh_sach_phieu_muon.csv"
+            />
             <button
                 onClick={() => handleOpenModal()}
                 className="bg-blue-600 text-white px-5 py-2 rounded-lg shadow hover:bg-blue-700 transition-colors"

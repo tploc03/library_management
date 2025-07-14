@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
+import ExportCSVButton from '../../components/ExportCSVButton';
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { CSVLink } from 'react-csv';
@@ -109,15 +110,12 @@ export default function BooksPage() {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-gray-800">Quản lý Sách</h1>
         <div className="flex items-center space-x-4">
-            <CSVLink
-                data={csvData}
-                headers={csvHeaders}
-                filename={"danh_sach_sach.csv"}
-                className="bg-teal-600 text-white px-5 py-2 rounded-lg shadow hover:bg-teal-700 transition-colors"
-                target="_blank"
-            >
-                Xuất ra CSV
-            </CSVLink>
+          <ExportCSVButton
+            data={csvData}
+            headers={csvHeaders}
+            filename="danh_sach_sach.csv"
+          />
+
             <button
                 onClick={() => handleOpenModal()}
                 className="bg-blue-600 text-white px-5 py-2 rounded-lg shadow hover:bg-blue-700 transition-colors"

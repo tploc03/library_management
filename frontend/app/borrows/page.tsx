@@ -1,9 +1,11 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useReactToPrint } from 'react-to-print';
+import ExportCSVButton from '../../components/ExportCSVButton';
 import { getBorrowSlips, createBorrowSlip, createReturnSlip, getBooks, getReturnSlips, getUnreturnedBorrows, checkBookQuantity } from '../../lib/api';
 import { BorrowSlip, Book, ReturnSlip, UnreturnedBorrow } from '../../types';
 import { toast } from 'react-hot-toast';
@@ -219,10 +221,15 @@ const BorrowTable = ({ borrowSlips, returnSlips, onReturn }: { borrowSlips: Borr
 
     const triggerPrint = (slip: BorrowSlip) => {
         setSlipToPrint(slip);
-        setTimeout(() => {
+        };
+
+        useEffect(() => {
+        if (slipToPrint && printComponentRef.current) {
+            // Gọi handlePrint khi DOM đã sẵn sàng
             handlePrint();
-        }, 100);
-    };
+        }
+        }, [slipToPrint]);
+
   
     return (
         <div>
