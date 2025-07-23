@@ -290,7 +290,7 @@ const UnreturnedTable = ({ unreturnedSlips, isLoading }: { unreturnedSlips: Unre
 
     return (
         <div className="bg-white shadow-md rounded-lg overflow-hidden">
-            <h3 className="text-xl font-semibold p-4 bg-yellow-100 text-yellow-800">Danh sách Phiếu Mượn Chưa Trả (từ Stored Procedure)</h3>
+            <h3 className="text-xl font-semibold p-4 bg-yellow-100 text-yellow-800">Danh sách Phiếu Mượn Chưa Trả</h3>
             <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                     <tr>
